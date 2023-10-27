@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@* <div class="text-center">
+    <h1 class="display-4">welcome</h1>
+    <p>learn about <a href="https://docs.microsoft.com/aspnet/core">building web apps with asp.net core</a>.</p>
+</div>
+ *@
+
+<div class="container-fluid">
+    <h2>Product List</h2>
+    <table class="table table-sm table-striped table-bordered m-2">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        ShowAllProducts();
+        function ShowAllProducts() {
+            $("table tbody").html("");
+            $.ajax({
+                url: "http://localhost:53633/api/Products",
+                type: "get",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    $.each(result, function (index, value) {
+                        $("tbody").append($("<tr>"));
+                        appendElement = $("tbody tr").last();
+                        appendElement.append($("<td>").html(value["productId"]));
+                        appendElement.append($("<td>").html(value["productName"]));
+                        appendElement.append($("<td>").html(value["unitsInStock"]));
+                        appendElement.append($("<td>").html(value["unitPrice"]));
+                        appendElement.append($("<td>").html("<a href=\"?id=" + value["productId"] + "\"><img src=\"icon/edit.png\"/></a>"));
+                        appendElement.append($("<td>").html("<img class=\"delete\" src=\"icon/close.png\"/>"));
+                    })
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr)
+                }
+            });
+        }
+        $("table").on("click", "img.delete", function () {
+            var productId = $(this).parents("tr").find("td:nth-child(1)").text();
+            $.ajax({
+                url: "http://localhost:53633/api/Products" + productId,
+                type: "delete",
+                contentType: "application/json"
+                success: function (result, status, xhr) {
+                    ShowAllProducts();
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr)
+                }
+            });
+        })
+    })
+</script>
